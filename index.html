@@ -1,0 +1,632 @@
+<meta charset="UTF-8">
+<style>
+    .jtpc-wrapper * { box-sizing: border-box; }
+    .jtpc-wrapper {
+        --primary: #f43f5e;
+        --primary-dark: #be123c;
+        --bg: #fff1f2;
+        --border: #fecdd3;
+        --text-dark: #1f2937;
+        --text-muted: #64748b;
+        max-width: 640px;
+        width: 100%;
+        margin: 20px auto;
+        font-family: 'Inter', Arial, sans-serif;
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 30px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        border: 1px solid var(--border);
+        text-align: center;
+        color: var(--text-dark);
+    }
+    .jtpc-wrapper h3 {
+        margin-top: 0;
+        margin-bottom: 6px;
+        color: var(--primary);
+        font-weight: 800;
+        font-size: 22px;
+    }
+    .jtpc-wrapper .jtpc-sub {
+        font-size: 13px;
+        color: var(--text-muted);
+        margin-bottom: 22px;
+    }
+
+    /* Upload area */
+    .jtpc-upload {
+        border: 2px dashed var(--border);
+        padding: 34px 16px;
+        border-radius: 12px;
+        background: var(--bg);
+        cursor: pointer;
+        margin-bottom: 18px;
+        transition: 0.25s;
+    }
+    .jtpc-upload.dragover,
+    .jtpc-upload:hover { border-color: var(--primary); background: #ffe4e6; }
+    .jtpc-upload p { margin: 0; color: var(--text-dark); font-size: 14px; font-weight: 600; }
+    .jtpc-upload span { display: block; margin-top: 6px; font-size: 12px; color: var(--text-muted); font-weight: 400; }
+
+    /* Options grid */
+    .jtpc-options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        text-align: left;
+        margin-bottom: 18px;
+    }
+    .jtpc-field { display: flex; flex-direction: column; gap: 6px; }
+    .jtpc-field.full { grid-column: 1 / -1; }
+    .jtpc-field label {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--primary-dark);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+    .jtpc-field select,
+    .jtpc-field input[type="number"] {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 9px 10px;
+        font-size: 14px;
+        color: var(--text-dark);
+        background: #fff;
+        width: 100%;
+    }
+    .jtpc-field select:focus,
+    .jtpc-field input:focus { outline: none; border-color: var(--primary); }
+
+    .jtpc-quality-row { display: flex; align-items: center; gap: 10px; }
+    .jtpc-quality-row input[type="range"] { flex: 1; accent-color: var(--primary); }
+    .jtpc-quality-val { font-size: 13px; font-weight: 700; color: var(--primary-dark); min-width: 36px; text-align: right; }
+
+    .jtpc-checkbox-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: var(--text-dark);
+        justify-content: flex-start;
+    }
+    .jtpc-checkbox-row input { accent-color: var(--primary); width: 16px; height: 16px; }
+
+    .jtpc-resize-row { display: flex; gap: 10px; align-items: center; }
+    .jtpc-resize-row input { flex: 1; }
+    .jtpc-resize-row span { font-size: 12px; color: var(--text-muted); }
+
+    /* Buttons */
+    .jtpc-btn-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 6px; }
+    .jtpc-btn {
+        background: var(--primary);
+        color: #ffffff;
+        padding: 12px 22px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+    .jtpc-btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
+    .jtpc-btn:disabled { background: #fda4af; cursor: not-allowed; transform: none; }
+    .jtpc-btn.jtpc-secondary {
+        background: #ffffff;
+        color: var(--primary-dark);
+        border: 2px solid var(--primary);
+        padding: 10px 20px;
+    }
+    .jtpc-btn.jtpc-secondary:hover { background: var(--bg); }
+    .jtpc-btn.jtpc-success { background: #10b981; }
+    .jtpc-btn.jtpc-success:hover { background: #059669; }
+
+    /* Preview */
+    .jtpc-preview-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin: 18px 0;
+    }
+    .jtpc-preview-box {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 8px;
+        background: var(--bg);
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    .jtpc-preview-box img { max-width: 100%; max-height: 140px; border-radius: 6px; }
+    .jtpc-preview-box .jtpc-label { font-size: 11px; font-weight: 700; color: var(--primary-dark); text-transform: uppercase; margin-bottom: 6px; }
+    .jtpc-preview-box .jtpc-meta { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+    .jtpc-preview-box .jtpc-empty { font-size: 12px; color: var(--text-muted); }
+
+    /* Batch list */
+    .jtpc-batch-list { text-align: left; margin: 14px 0; max-height: 220px; overflow-y: auto; }
+    .jtpc-batch-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 8px 10px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        margin-bottom: 8px;
+        background: var(--bg);
+        font-size: 13px;
+    }
+    .jtpc-batch-item .jtpc-batch-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-dark); }
+    .jtpc-batch-item .jtpc-batch-status { font-size: 11px; color: var(--primary-dark); font-weight: 700; }
+    .jtpc-batch-item a {
+        color: #ffffff;
+        background: var(--primary);
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 5px 10px;
+        border-radius: 6px;
+    }
+    .jtpc-batch-item a:hover { background: var(--primary-dark); }
+
+    .jtpc-status-msg { font-size: 13px; color: var(--text-muted); margin: 10px 0; min-height: 16px; }
+    .jtpc-status-msg.error { color: var(--primary-dark); font-weight: 600; }
+    .jtpc-status-msg.success { color: #059669; font-weight: 600; }
+
+    .jtpc-progress-wrap {
+        width: 100%;
+        height: 8px;
+        background: var(--bg);
+        border-radius: 6px;
+        overflow: hidden;
+        margin: 10px 0;
+        display: none;
+    }
+    .jtpc-progress-bar { height: 100%; width: 0%; background: var(--primary); transition: width 0.2s; }
+
+    @media (max-width: 480px) {
+        .jtpc-wrapper { padding: 18px; margin: 10px auto; border-radius: 12px; }
+        .jtpc-options { grid-template-columns: 1fr; }
+        .jtpc-preview-grid { grid-template-columns: 1fr; }
+        .jtpc-btn { width: 100%; }
+        .jtpc-btn-row { flex-direction: column; }
+    }
+</style>
+
+<div class="jtpc-wrapper">
+    <h3>JPG to PNG Converter</h3>
+    <p class="jtpc-sub">Convert images between JPG, PNG, WEBP &amp; BMP — resize, adjust quality, rotate, and batch convert.</p>
+
+    <div class="jtpc-upload" id="jtpcUpload">
+        <p id="jtpcUploadText">Click or drag &amp; drop image(s) here</p>
+        <span>Supports JPG, PNG, WEBP, BMP, GIF — multiple files allowed</span>
+        <input type="file" id="jtpcFileInput" accept="image/*" multiple style="display:none">
+    </div>
+
+    <div class="jtpc-options">
+        <div class="jtpc-field">
+            <label for="jtpcFormat">Output Format</label>
+            <select id="jtpcFormat">
+                <option value="image/png">PNG (Lossless)</option>
+                <option value="image/jpeg">JPG (Compressed)</option>
+                <option value="image/webp">WEBP</option>
+                <option value="image/bmp">BMP</option>
+            </select>
+        </div>
+        <div class="jtpc-field" id="jtpcQualityField">
+            <label for="jtpcQuality">Quality</label>
+            <div class="jtpc-quality-row">
+                <input type="range" id="jtpcQuality" min="10" max="100" value="92">
+                <span class="jtpc-quality-val" id="jtpcQualityVal">92%</span>
+            </div>
+        </div>
+
+        <div class="jtpc-field full">
+            <label>Resize (optional)</label>
+            <div class="jtpc-resize-row">
+                <input type="number" id="jtpcWidth" placeholder="Width (px)" min="1">
+                <span>×</span>
+                <input type="number" id="jtpcHeight" placeholder="Height (px)" min="1">
+            </div>
+            <div class="jtpc-checkbox-row" style="margin-top:6px;">
+                <input type="checkbox" id="jtpcAspect" checked>
+                <label for="jtpcAspect" style="text-transform:none; font-weight:400; color:var(--text-dark);">Keep aspect ratio</label>
+            </div>
+        </div>
+
+        <div class="jtpc-field">
+            <label for="jtpcRotate">Rotate</label>
+            <select id="jtpcRotate">
+                <option value="0">No rotation</option>
+                <option value="90">90° clockwise</option>
+                <option value="180">180°</option>
+                <option value="270">270° clockwise</option>
+            </select>
+        </div>
+        <div class="jtpc-field">
+            <label for="jtpcFlip">Flip</label>
+            <select id="jtpcFlip">
+                <option value="none">No flip</option>
+                <option value="horizontal">Horizontal</option>
+                <option value="vertical">Vertical</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="jtpc-btn-row">
+        <button class="jtpc-btn" id="jtpcConvertBtn">Convert Image(s) 🔄</button>
+        <button class="jtpc-btn jtpc-secondary" id="jtpcResetBtn">Reset</button>
+        <button class="jtpc-btn jtpc-secondary" id="jtpcDownloadAllBtn" style="display:none;">Download All (ZIP)</button>
+    </div>
+
+    <div class="jtpc-progress-wrap" id="jtpcProgressWrap">
+        <div class="jtpc-progress-bar" id="jtpcProgressBar"></div>
+    </div>
+    <p class="jtpc-status-msg" id="jtpcStatus"></p>
+
+    <div class="jtpc-preview-grid" id="jtpcSinglePreview" style="display:none;">
+        <div class="jtpc-preview-box">
+            <span class="jtpc-label">Original</span>
+            <img id="jtpcOrigImg" alt="Original preview">
+            <span class="jtpc-meta" id="jtpcOrigMeta"></span>
+        </div>
+        <div class="jtpc-preview-box">
+            <span class="jtpc-label">Converted</span>
+            <div id="jtpcConvertedHolder"><span class="jtpc-empty">Not converted yet</span></div>
+            <span class="jtpc-meta" id="jtpcConvMeta"></span>
+        </div>
+    </div>
+
+    <div class="jtpc-batch-list" id="jtpcBatchList" style="display:none;"></div>
+
+    <canvas id="jtpcCanvas" style="display:none;"></canvas>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+(function () {
+    var wrap = document.currentScript.previousElementSibling.previousElementSibling ? document.getElementsByClassName('jtpc-wrapper')[0] : document.getElementsByClassName('jtpc-wrapper')[0];
+
+    var uploadArea   = document.getElementById('jtpcUpload');
+    var uploadText   = document.getElementById('jtpcUploadText');
+    var fileInput    = document.getElementById('jtpcFileInput');
+    var formatSel    = document.getElementById('jtpcFormat');
+    var qualityField = document.getElementById('jtpcQualityField');
+    var qualityInput = document.getElementById('jtpcQuality');
+    var qualityVal   = document.getElementById('jtpcQualityVal');
+    var widthInput   = document.getElementById('jtpcWidth');
+    var heightInput  = document.getElementById('jtpcHeight');
+    var aspectChk    = document.getElementById('jtpcAspect');
+    var rotateSel    = document.getElementById('jtpcRotate');
+    var flipSel      = document.getElementById('jtpcFlip');
+    var convertBtn   = document.getElementById('jtpcConvertBtn');
+    var resetBtn     = document.getElementById('jtpcResetBtn');
+    var downloadAllBtn = document.getElementById('jtpcDownloadAllBtn');
+    var statusEl     = document.getElementById('jtpcStatus');
+    var progressWrap = document.getElementById('jtpcProgressWrap');
+    var progressBar  = document.getElementById('jtpcProgressBar');
+    var canvas       = document.getElementById('jtpcCanvas');
+    var ctx          = canvas.getContext('2d');
+
+    var singlePreview   = document.getElementById('jtpcSinglePreview');
+    var origImg         = document.getElementById('jtpcOrigImg');
+    var origMeta        = document.getElementById('jtpcOrigMeta');
+    var convertedHolder = document.getElementById('jtpcConvertedHolder');
+    var convMeta        = document.getElementById('jtpcConvMeta');
+    var batchListEl      = document.getElementById('jtpcBatchList');
+
+    var loadedFiles = [];   // { file, img, origSize }
+    var convertedResults = []; // { name, blob, url, size }
+    var origWidthNat = 0, origHeightNat = 0;
+
+    function setStatus(msg, type) {
+        statusEl.textContent = msg || '';
+        statusEl.className = 'jtpc-status-msg' + (type ? ' ' + type : '');
+    }
+
+    function formatBytes(bytes) {
+        if (!bytes && bytes !== 0) return '';
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+    }
+
+    function extForMime(mime) {
+        if (mime === 'image/png') return 'png';
+        if (mime === 'image/jpeg') return 'jpg';
+        if (mime === 'image/webp') return 'webp';
+        if (mime === 'image/bmp') return 'bmp';
+        return 'png';
+    }
+
+    formatSel.addEventListener('change', function () {
+        var showQuality = (formatSel.value === 'image/jpeg' || formatSel.value === 'image/webp');
+        qualityField.style.display = showQuality ? 'flex' : 'none';
+    });
+    formatSel.dispatchEvent(new Event('change'));
+
+    qualityInput.addEventListener('input', function () {
+        qualityVal.textContent = qualityInput.value + '%';
+    });
+
+    uploadArea.addEventListener('click', function () { fileInput.click(); });
+    ['dragenter', 'dragover'].forEach(function (evt) {
+        uploadArea.addEventListener(evt, function (e) {
+            e.preventDefault(); e.stopPropagation();
+            uploadArea.classList.add('dragover');
+        });
+    });
+    ['dragleave', 'drop'].forEach(function (evt) {
+        uploadArea.addEventListener(evt, function (e) {
+            e.preventDefault(); e.stopPropagation();
+            uploadArea.classList.remove('dragover');
+        });
+    });
+    uploadArea.addEventListener('drop', function (e) {
+        var files = e.dataTransfer.files;
+        if (files && files.length) handleFiles(files);
+    });
+    fileInput.addEventListener('change', function (e) {
+        if (e.target.files && e.target.files.length) handleFiles(e.target.files);
+    });
+
+    function handleFiles(fileList) {
+        var files = Array.prototype.filter.call(fileList, function (f) {
+            return f.type.indexOf('image/') === 0;
+        });
+        if (!files.length) {
+            setStatus('Please select valid image files.', 'error');
+            return;
+        }
+
+        loadedFiles = [];
+        convertedResults = [];
+        downloadAllBtn.style.display = 'none';
+        batchListEl.style.display = 'none';
+        batchListEl.innerHTML = '';
+        singlePreview.style.display = 'none';
+        convertedHolder.innerHTML = '<span class="jtpc-empty">Not converted yet</span>';
+        convMeta.textContent = '';
+        setStatus('');
+
+        var loadPromises = files.map(function (file) {
+            return new Promise(function (resolve, reject) {
+                var reader = new FileReader();
+                reader.onload = function (ev) {
+                    var img = new Image();
+                    img.onload = function () {
+                        loadedFiles.push({ file: file, img: img, origSize: file.size });
+                        resolve();
+                    };
+                    img.onerror = function () { reject(new Error('Could not load ' + file.name)); };
+                    img.src = ev.target.result;
+                };
+                reader.onerror = function () { reject(new Error('Could not read ' + file.name)); };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        Promise.all(loadPromises).then(function () {
+            uploadText.textContent = loadedFiles.length === 1
+                ? 'Loaded: ' + loadedFiles[0].file.name
+                : loadedFiles.length + ' images loaded';
+
+            if (loadedFiles.length === 1) {
+                var lf = loadedFiles[0];
+                origImg.src = lf.img.src;
+                origWidthNat = lf.img.naturalWidth;
+                origHeightNat = lf.img.naturalHeight;
+                origMeta.textContent = origWidthNat + '×' + origHeightNat + ' · ' + formatBytes(lf.origSize);
+                widthInput.value = '';
+                heightInput.value = '';
+                singlePreview.style.display = 'grid';
+            }
+            setStatus('Ready to convert (' + loadedFiles.length + ' file' + (loadedFiles.length > 1 ? 's' : '') + ').');
+        }).catch(function (err) {
+            setStatus(err.message || 'Failed to load one or more images.', 'error');
+        });
+    }
+
+    // keep aspect ratio linking for single-image mode
+    widthInput.addEventListener('input', function () {
+        if (aspectChk.checked && origWidthNat && widthInput.value) {
+            heightInput.value = Math.round(widthInput.value * (origHeightNat / origWidthNat));
+        }
+    });
+    heightInput.addEventListener('input', function () {
+        if (aspectChk.checked && origHeightNat && heightInput.value) {
+            widthInput.value = Math.round(heightInput.value * (origWidthNat / origHeightNat));
+        }
+    });
+
+    function drawToCanvas(img, targetW, targetH, rotateDeg, flip) {
+        var rotate = parseInt(rotateDeg, 10) || 0;
+        var swapDims = (rotate === 90 || rotate === 270);
+        var w = targetW || img.naturalWidth;
+        var h = targetH || img.naturalHeight;
+
+        canvas.width = swapDims ? h : w;
+        canvas.height = swapDims ? w : h;
+
+        ctx.save();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        var cx = canvas.width / 2;
+        var cy = canvas.height / 2;
+        ctx.translate(cx, cy);
+        ctx.rotate(rotate * Math.PI / 180);
+
+        var scaleX = flip === 'horizontal' ? -1 : 1;
+        var scaleY = flip === 'vertical' ? -1 : 1;
+        ctx.scale(scaleX, scaleY);
+
+        ctx.drawImage(img, -w / 2, -h / 2, w, h);
+        ctx.restore();
+    }
+
+    function convertOne(entry, opts) {
+        return new Promise(function (resolve, reject) {
+            try {
+                var w = opts.width || null;
+                var h = opts.height || null;
+                drawToCanvas(entry.img, w, h, opts.rotate, opts.flip);
+
+                var mime = opts.mime;
+                var quality = opts.quality;
+
+                var doExport = function (exportMime) {
+                    canvas.toBlob(function (blob) {
+                        if (!blob) { reject(new Error('Conversion failed for ' + entry.file.name)); return; }
+                        resolve({ blob: blob, mime: exportMime });
+                    }, exportMime, quality);
+                };
+
+                if (mime === 'image/bmp') {
+                    // Canvas cannot natively export BMP in most browsers; fall back to PNG and rename.
+                    doExport('image/png');
+                } else {
+                    doExport(mime);
+                }
+            } catch (err) {
+                reject(err);
+            }
+        });
+    }
+
+    convertBtn.addEventListener('click', function () {
+        if (!loadedFiles.length) {
+            setStatus('Please upload an image first.', 'error');
+            return;
+        }
+
+        convertBtn.disabled = true;
+        setStatus('Converting…');
+        progressWrap.style.display = 'block';
+        progressBar.style.width = '0%';
+        convertedResults = [];
+        batchListEl.innerHTML = '';
+        batchListEl.style.display = loadedFiles.length > 1 ? 'block' : 'none';
+        downloadAllBtn.style.display = 'none';
+
+        var mime = formatSel.value;
+        var quality = parseInt(qualityInput.value, 10) / 100;
+        var rotate = rotateSel.value;
+        var flip = flipSel.value;
+        var wantW = widthInput.value ? parseInt(widthInput.value, 10) : null;
+        var wantH = heightInput.value ? parseInt(heightInput.value, 10) : null;
+
+        var chain = Promise.resolve();
+        var total = loadedFiles.length;
+        var done = 0;
+
+        loadedFiles.forEach(function (entry, idx) {
+            chain = chain.then(function () {
+                var w = wantW;
+                var h = wantH;
+                if (loadedFiles.length > 1 && wantW && !wantH) {
+                    h = Math.round(wantW * (entry.img.naturalHeight / entry.img.naturalWidth));
+                }
+                return convertOne(entry, { mime: mime, quality: quality, rotate: rotate, flip: flip, width: w, height: h })
+                    .then(function (result) {
+                        var ext = (mime === 'image/bmp') ? 'png' : extForMime(result.mime);
+                        var baseName = entry.file.name.replace(/\.[^/.]+$/, '');
+                        var outName = baseName + '_converted.' + ext;
+                        var url = URL.createObjectURL(result.blob);
+
+                        convertedResults.push({ name: outName, blob: result.blob, url: url, size: result.blob.size });
+
+                        if (loadedFiles.length === 1) {
+                            convertedHolder.innerHTML = '<img src="' + url + '" alt="Converted preview">';
+                            convMeta.textContent = (w || entry.img.naturalWidth) + '×' + (h || entry.img.naturalHeight) + ' · ' + formatBytes(result.blob.size);
+                            var dlBtn = document.createElement('a');
+                            dlBtn.href = url;
+                            dlBtn.download = outName;
+                            dlBtn.className = 'jtpc-btn jtpc-success';
+                            dlBtn.style.display = 'inline-block';
+                            dlBtn.style.marginTop = '10px';
+                            dlBtn.textContent = 'Download Image ⬇️';
+                            convertedHolder.appendChild(dlBtn);
+                        } else {
+                            var item = document.createElement('div');
+                            item.className = 'jtpc-batch-item';
+                            item.innerHTML = '<span class="jtpc-batch-name">' + outName + '</span>' +
+                                '<span class="jtpc-batch-status">' + formatBytes(result.blob.size) + '</span>';
+                            var a = document.createElement('a');
+                            a.href = url;
+                            a.download = outName;
+                            a.textContent = 'Download';
+                            item.appendChild(a);
+                            batchListEl.appendChild(item);
+                        }
+
+                        done++;
+                        progressBar.style.width = Math.round((done / total) * 100) + '%';
+                    });
+            });
+        });
+
+        chain.then(function () {
+            setStatus('Conversion complete! ' + convertedResults.length + ' file(s) ready.', 'success');
+            convertBtn.disabled = false;
+            if (convertedResults.length > 1) {
+                downloadAllBtn.style.display = 'inline-block';
+            }
+        }).catch(function (err) {
+            setStatus(err.message || 'Something went wrong during conversion.', 'error');
+            convertBtn.disabled = false;
+        });
+    });
+
+    downloadAllBtn.addEventListener('click', function () {
+        if (typeof JSZip === 'undefined') {
+            setStatus('ZIP library failed to load. Please download files individually.', 'error');
+            return;
+        }
+        setStatus('Preparing ZIP…');
+        var zip = new JSZip();
+        var promises = convertedResults.map(function (r) {
+            return fetch(r.url).then(function (res) { return res.blob(); }).then(function (blob) {
+                zip.file(r.name, blob);
+            });
+        });
+        Promise.all(promises).then(function () {
+            return zip.generateAsync({ type: 'blob' });
+        }).then(function (content) {
+            var zipUrl = URL.createObjectURL(content);
+            var a = document.createElement('a');
+            a.href = zipUrl;
+            a.download = 'converted_images.zip';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setStatus('ZIP downloaded successfully!', 'success');
+        }).catch(function () {
+            setStatus('Could not create ZIP file.', 'error');
+        });
+    });
+
+    resetBtn.addEventListener('click', function () {
+        loadedFiles = [];
+        convertedResults = [];
+        fileInput.value = '';
+        widthInput.value = '';
+        heightInput.value = '';
+        rotateSel.value = '0';
+        flipSel.value = 'none';
+        qualityInput.value = 92;
+        qualityVal.textContent = '92%';
+        uploadText.textContent = 'Click or drag & drop image(s) here';
+        singlePreview.style.display = 'none';
+        batchListEl.style.display = 'none';
+        batchListEl.innerHTML = '';
+        downloadAllBtn.style.display = 'none';
+        progressWrap.style.display = 'none';
+        progressBar.style.width = '0%';
+        convertedHolder.innerHTML = '<span class="jtpc-empty">Not converted yet</span>';
+        convMeta.textContent = '';
+        setStatus('');
+    });
+})();
+</script>
